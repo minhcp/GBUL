@@ -16,7 +16,11 @@ from utilities import *
 import random
 random.seed(123456)
 
-NTHREAD = 20
+import argparse
+parser = argparse.ArgumentParser(description='parsing arguments')
+parser.add_argument('-nthread', action="store",  dest="NTHREAD", type=int)
+args = parser.parse_args()
+NTHREAD = args.NTHREAD
 
 def sf_ml(fdoc, fgolden, tfidf):
 	mpf = defaultdict(int)

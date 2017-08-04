@@ -11,7 +11,11 @@ from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.metrics.pairwise import manhattan_distances
 from sklearn.metrics.pairwise import cosine_similarity
 
-N_THREAD = 20
+import argparse
+parser = argparse.ArgumentParser(description='parsing arguments')
+parser.add_argument('-nthread', action="store",  dest="N_THREAD", type=int)
+args = parser.parse_args()
+N_THREAD = args.N_THREAD
 
 class OrderList:
 	'''

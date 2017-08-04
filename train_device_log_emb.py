@@ -10,7 +10,11 @@ from gensim.models import Doc2Vec
 import logging
 logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
 
-N_THREAD = 20
+import argparse
+parser = argparse.ArgumentParser(description='parsing arguments')
+parser.add_argument('-nthread', action="store",  dest="N_THREAD", type=int)
+args = parser.parse_args()
+N_THREAD = args.N_THREAD
 
 class LabeledLineSentence(object):
 	def __init__(self, filename):
@@ -108,7 +112,6 @@ def train_d2v(model_name):
 					size=300, window=10, 
 					min_count=2, workers=N_THREAD)  # use fixed learning rate
 	model.build_vocab(sentences)
-	# n_docs = sentences.get_n_docs()
 	for epoch in range(5):
 		 model.train(sentences)
 		 model.alpha -= 0.002  # decrease the learning rate
@@ -132,10 +135,8 @@ def generate_candidates(ftype, fmodel_name):
 	
 	knn = KNeighborsClassifier(n_neighbors=1, n_jobs = -1)
 	knn.fit(X=user_vector, y=range(1, len(user_lst)+1))
-	# timer = ProgressBar(title="Nearest neighbor approximate")
 	def find_nearest(i):
 		uid = user_lst[i]
-		# timer.tick()
 		cur_vect = user_vector[i]
 		tmp = knn.kneighbors(X=[cur_vect], n_neighbors=100, return_distance=True)
 		res = []
@@ -147,12 +148,10 @@ def generate_candidates(ftype, fmodel_name):
 		return  [(r[0],r[1],r[2],j+1) for j,r in enumerate(res)]
 
 	pool = ThreadPool(20)
-	# nn_pairs = pool.map(find_nearest, range(len(user_lst)))
 	nn_pairs = [_ for _ in tqdm(pool.imap_unordered(find_nearest, range(len(user_lst))))]
 
 	nn_pairs = set([y for x in nn_pairs for y in x])
 	nn_pairs = sorted(list(nn_pairs), key=lambda x: x[2])
-	# timer.finish()
 	dictToFile(nn_pairs,HOME+'candidates/candidate_pairs.{}.d2v.json.gz'.format(ftype))
 	return nn_pairs
 
