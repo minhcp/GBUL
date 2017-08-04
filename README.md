@@ -1,9 +1,8 @@
 # Cross Device User Linking
-This work is extended from the 1st place solution in CIKM Cup 2016 by the same authors.
+This work is exteneded from the 1st place solution in CIKM Cup 2016 by the same author.
 The approach is described in the following short paper:
 Cross-Device User Linking: URL, Session, Visisting Time, and Device-log Embedding (SIGIR 2017)
 
-(Note: Code will be released after the conference.)
 
 # Prerequisite
 The following data files are required and can be downloaded from https://drive.google.com/drive/folders/0B7XZSACQf0KdNXVIUXEyVGlBZnc:
@@ -22,11 +21,12 @@ mkdir emb
 mkdir candidates
 mkdir tmp
 mkdir results
+
 python preprocess.py
-python candidate_generation.py
-python train_device_log_emb.py
-python xgb.py
+python candidate_generation.py -nthread 40
+python train_device_log_emb.py -nthread 40
+python xgb.py -nthread 40
 python evaluate.py
 ```
 
-(creator: Minh C. Phan phan0050@e.ntu.edu.sg)
+(author: Minh C. Phan phan0050@e.ntu.edu.sg)
