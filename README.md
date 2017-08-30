@@ -1,7 +1,7 @@
 # Cross Device User Linking
 This work is exteneded from the 1st place solution in CIKM Cup 2016 by the same author.
 The approach is described in the following short paper:
-Cross-Device User Linking: URL, Session, Visisting Time, and Device-log Embedding (SIGIR 2017)
+[Cross-Device User Linking: URL, Session, Visisting Time, and Device-log Embedding (SIGIR 2017)](https://www.researchgate.net/publication/318763883_Cross-Device_User_Linking_URL_Session_Visiting_Time_and_Device-log_Embedding)
 
 
 # Prerequisite
