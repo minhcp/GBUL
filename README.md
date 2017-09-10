@@ -3,6 +3,10 @@ This work is exteneded from the 1st place solution in CIKM Cup 2016 by the same 
 The approach is described in the following short paper:
 [Cross-Device User Linking: URL, Session, Visisting Time, and Device-log Embedding (SIGIR 2017)](https://www.researchgate.net/publication/318763883_Cross-Device_User_Linking_URL_Session_Visiting_Time_and_Device-log_Embedding)
 
+# Problem
+The task is to identify all pairs of device-logs that belong to same users given their browsing logs on different devices. Figure 1 illustrates the task at hand. Each device-log is a list of events in the format of 3-tuple <URL,title,timestamp>.
+
+![alt text](overview.png "Overview of the Cross-Device User Linking problem.")
 
 # Prerequisite
 The following data files are required and can be downloaded from https://drive.google.com/drive/folders/0B7XZSACQf0KdNXVIUXEyVGlBZnc:

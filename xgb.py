@@ -10,17 +10,21 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics.pairwise import euclidean_distances
 from sklearn.metrics.pairwise import manhattan_distances
 from sklearn.metrics.pairwise import cosine_similarity
-
 import argparse
+
+
 parser = argparse.ArgumentParser(description='parsing arguments')
 parser.add_argument('-nthread', action="store",  dest="N_THREAD", type=int)
 args = parser.parse_args()
 N_THREAD = args.N_THREAD
 
+
 class OrderList:
 	'''
 	Store the score and order of each device log in its nearest neighbors
+
 	'''
+
 	def __init__(self, order_files, topk=100):
 		nn_pairs_lst = [filter_order_list(dictFromFileUnicode(_), topk) for _ in order_files]
 		self.orders = [Order(_) for _ in nn_pairs_lst]
@@ -31,6 +35,7 @@ class OrderList:
 			res+=_.get_order_features(u,v)
 		return res
 			
+
 class Order:
 	def __init__(self, nn_pairs):
 		self.orders = {}
@@ -83,7 +88,7 @@ class XGB_Model(BaseModel):
 		order_lst = OrderList(cand_lst, topk=60)
 		xt = self.get_u_vecs(test_pairs,order_lst,u2f,p_domains, p_matching,u2v_model, with_label=False)
 
-		# temporally verify the model performance
+		# Temporally verify the model performance
 		valid_pairs = self.load_train_pairs(self.test_pair_type, neg_ratio=1, limit_pos_samples=10000)
 		xv,yv = self.get_u_vecs(valid_pairs, order_lst,u2f,p_domains, p_matching,u2v_model, with_label=True)
 		return x,y,test_pairs,xt,xv,yv
@@ -152,6 +157,10 @@ class XGB_Model(BaseModel):
 			return [-1]
 
 	def pair2vec(self, args):
+		''' Feature extractor
+		
+		'''
+
 		u1,u2,order_lst,u2f,p_domains,p_matching,u2v_model,is_positive = args
 		f=[]
 
@@ -223,6 +232,7 @@ class XGB_Model(BaseModel):
 		res = [(_[0],_[1],predicts[i][1]) for i,_ in enumerate(test_pairs)]
 		res = sorted(res, key=lambda x: x[-1], reverse=True)
 		evaluate_best_case(res, self.result_type, self.test_pair_type, write_to_file=True, reverse=True)
+
 
 if __name__ == '__main__':
 	m = XGB_Model(result_type='xgb.all_features')

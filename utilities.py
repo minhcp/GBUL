@@ -11,9 +11,12 @@ from scipy import spatial
 import os, json, random
 random.seed(123456)
 
+
 HOME = '' #'C:/Users/PCM/Desktop/GBUL/To_Public/'
 MIN_TIMESTAMP = 1461340800 #2016, 04, 23
 MAX_TIMESTAMP = 1466611200 #2016, 06, 23
+SEC_GAP = 30 #30 mins
+
 
 def filter_order_list(pairs, topk, reverse=False):
 	'''
@@ -37,6 +40,7 @@ def filter_order_list(pairs, topk, reverse=False):
 		res += order[u]
 	return sorted(res, key=lambda x: x[2],reverse=reverse)
 
+
 def read_user_pairs(fin):
 	pairs = []
 	with open(fin,'r') as f:
@@ -44,6 +48,7 @@ def read_user_pairs(fin):
 		for r in reader:
 			pairs.append(r)
 	return pairs
+
 
 def get_vocab(fname, mindf=2):
 	counter = defaultdict(int)
@@ -58,6 +63,7 @@ def get_vocab(fname, mindf=2):
 			vocab.append(key)
 	return set(vocab)
 
+
 def remove_duplicate(pairs):
 	res = []
 	pset = set()
@@ -68,17 +74,20 @@ def remove_duplicate(pairs):
 			res.append(p)
 	return res
 
+
 def obj2file(obj,path):
 	print ("Saving {}".format(path))
 	with open(path, 'wb') as f:
 		pickle.dump(obj, f,protocol=2)
 	print ("Saving finished.")
 
+
 def file2obj(path):
 	print ("Loading {}".format(path))
 	with open(path, 'rb') as f:
 		obj = pickle.load(f)
 	return obj
+
 
 def evaluate(f_res, f_golden):
 	golden_set = []
@@ -110,7 +119,7 @@ def evaluate(f_res, f_golden):
 	print ('len(res_pairs)={}.len(golden_pairs)={}'.format(len(res_set), len(golden_set)))
 	print ('{} {} {}'.format(p,r,f1))
 
-SEC_GAP = 30 #30 mins
+
 def fact_lst2sections(facts,sec_gap=SEC_GAP):
 	secs = []
 	sec=[]
@@ -125,14 +134,17 @@ def fact_lst2sections(facts,sec_gap=SEC_GAP):
 	secs.append(sec)
 	return secs
 
+
 def timestamp2hr(timestamp):
 	return datetime.fromtimestamp(timestamp*60+MIN_TIMESTAMP).hour
+
 
 def timestamp2hr_week(timestamp):
 	time = datetime.fromtimestamp(timestamp*60+MIN_TIMESTAMP)
 	hr = time.hour
 	wd = time.weekday()
 	return wd*24+hr
+
 
 def timestamp2hr_date(timestamp):
 	time = datetime.fromtimestamp(timestamp*60+MIN_TIMESTAMP)
@@ -142,11 +154,13 @@ def timestamp2hr_date(timestamp):
 	assert 4<=month<=6
 	return hr + (day-1)*24 + (month-4)*24*31
 
+
 def get_24hr_distribution(uid, u2f):
 		count = defaultdict(float)
 		for fact in u2f[uid]:
 			count[timestamp2hr(fact[0])]+=1.0
 		return np.array([count[_] for _ in range(24)])
+
 
 def get_24hr_weekly_distribution(uid, u2f):
 	count = defaultdict(float)
@@ -160,11 +174,14 @@ def get_24hr_allday_distribution(uid, u2f):
 		count[timestamp2hr_date(fact[0])]+=1.0
 	return np.array([count[_] for _ in range(24*31*3)])
 
+
 def pearson_correlation(x,y):
 	return pearsonr(x,y)[0]
 
+
 def cosine_distance(x,y):
 	return spatial.distance.cosine(x, y)
+
 
 def load_golden_set(fname):
 	res = []
@@ -173,6 +190,7 @@ def load_golden_set(fname):
 			u1,u2 = line.strip().split(',')
 			res.append((u1,u2))
 	return set(res)
+
 
 def load_sample_pos_neg_pairs(pair_type, k_knn, limit_pos_samples=999999999):
 	all_pairs = dictFromFileUnicode('candidates/candidate_pairs.{}.tfidf.lv3.json.gz'.format(pair_type))
@@ -198,17 +216,20 @@ def load_sample_pos_neg_pairs(pair_type, k_knn, limit_pos_samples=999999999):
 	neg_pairs = [(_[0],_[1]) for _ in neg_pairs[:limit_pos_samples]]
 	return pos_pairs, neg_pairs
 
+
 def get_parent_url(url):
 	if len(url)==0:
 		return ''
 	else:
 		return '_'.join(url.split('_')[:-1])
 
+
 def create_dump_facts(factf_name,fo_name,lv_limit):
-	'''
-	fact documents
+	''' Fact documents
 	uid \t [list of url tokens]
+
 	'''
+
 	if fo_name.find('sectional')>-1:
 		create_dump_facts_sectional(factf_name,fo_name,lv_limit)
 		return
@@ -233,6 +254,7 @@ def create_dump_facts(factf_name,fo_name,lv_limit):
 			if len(doc_str)>0:
 				fo.write('{}\t{}\n'.format(es[0],doc_str))
 		fo.close()
+
 
 def create_dump_facts_sectional(factf_name,fo_name,lv_limit):
 	urls = dictFromFileUnicode(HOME+'data/fid2url.json.gz')
@@ -261,6 +283,7 @@ def create_dump_facts_sectional(factf_name,fo_name,lv_limit):
 			if len(doc_str)>0:
 				fo.write('{}\t{}\n'.format(es[0],doc_str))
 		fo.close()
+
 
 def get_personal_domains_prob(ftype,lv_limit = 4):
 	mpf = defaultdict(int)
@@ -323,6 +346,7 @@ def get_personal_domains_prob(ftype,lv_limit = 4):
 		p_domains[_] = float(pr_dm_count[_])/pr_count[_]
 	return p_domains, p_matching
 
+
 def load_u2facts(fname):
 	urls = dictFromFileUnicode(HOME+'data/fid2url.json.gz')
 	u2f = {}
@@ -339,6 +363,7 @@ def load_u2facts(fname):
 			u2f[uid] = facts
 	return u2f
 
+
 def fact2urls(fact,lv_limit=3):
 	res=[]
 	tks = ['t'+str(_) for _ in fact[1][:lv_limit]]
@@ -351,11 +376,13 @@ def fact2urls(fact,lv_limit=3):
 		res.append(path)
 	return res
 
+
 def facts2urls(facts,lv_limit=3):
 	res=[]
 	for fact in facts:
 		res+=fact2urls(fact,lv_limit)
 	return res
+
 
 def get_user_group(fgolden):
 	adv = defaultdict(list)
@@ -386,6 +413,7 @@ def get_user_group(fgolden):
 	for u in r.keys():
 		g2uids[r[u]].append(u)
 	return g2uids
+
 
 def pick_best_thr(pairs, golden_set, prefix_length = 0):
 	lgs = len(golden_set)
@@ -425,6 +453,7 @@ def pick_best_thr(pairs, golden_set, prefix_length = 0):
 		topn = len(final_set)
 	return (pp,rr,max_f1),thr, topn
 
+
 def selection_by_thr(pairs,threshold, reverse):
 	final_set = set()
 	for i,pair in enumerate(pairs):
@@ -436,9 +465,12 @@ def selection_by_thr(pairs,threshold, reverse):
 		final_set.add((u1,u2))
 	return  list(final_set)
 
+
 def evaluate_best_case(all_pairs, mname, ftype, write_to_file = True, reverse = False):
 	'''	Select the best threshold.
+
 	'''
+
 	fname = HOME+'results/{}.{}.all_pairs.json.gz'.format(mname,ftype)
 	if all_pairs!=None:
 		if write_to_file:
@@ -456,7 +488,9 @@ def evaluate_best_case(all_pairs, mname, ftype, write_to_file = True, reverse = 
 
 def evaluate_with_thr(all_pairs, mname, ftype, thresholds, write_to_file = True, reverse = False):
 	'''	Report the performance with specific thresholds
+
 	'''
+
 	fname = HOME+'results/{}.{}.all_pairs.json.gz'.format(mname,ftype)
 	if all_pairs!=None:
 		if write_to_file:
@@ -470,6 +504,7 @@ def evaluate_with_thr(all_pairs, mname, ftype, thresholds, write_to_file = True,
 	pairs = selection_by_thr(all_pairs,thresholds, reverse=reverse)
 	evaluate(pairs,f_golden)
 
+
 def dictToFile(dict,path):
     print ("Writing to {}".format(path))
     try:
@@ -479,6 +514,7 @@ def dictToFile(dict,path):
         # in case the file is too big to zip
         with open(path, 'w') as f:
             f.write(json.dumps(dict))
+
 
 def dictFromFileUnicode(path):
     print ("Loading {}".format(path))

@@ -7,9 +7,9 @@ class BaseModel():
 		self.test_pair_type = 'valid2'
 		self.candidates_type = 'sfml'
 		self.knn_candiadates = 18
-		self.test_mode=False #to test the running error
+		self.test_mode = False # To quickly validate the correctness
 
-	def load_golden_res(self,fname):
+	def load_golden_res(self, fname):
 		res = defaultdict(lambda:False)
 		with open(fname,'r') as f:
 			for line in f:
@@ -17,8 +17,7 @@ class BaseModel():
 				res[(u1,u2)] = True
 		return res
 
-
-	def load_train_pairs(self, pair_type, neg_ratio = 1, limit_pos_samples=999999999):
+	def load_train_pairs(self, pair_type, neg_ratio=1, limit_pos_samples=999999999):
 		if self.test_mode:
 			limit_pos_samples=1000
 		all_pairs = filter_order_list(dictFromFileUnicode(HOME+'candidates/candidate_pairs.{}.{}.lv3.json.gz'.format(pair_type,self.candidates_type)), self.knn_candiadates)\
@@ -46,9 +45,9 @@ class BaseModel():
 
 		return all_pairs
 
-	def load_test_pairs(self,limit_pairs=999999999,test_pair_type = 'valid2'):
+	def load_test_pairs(self, limit_pairs=999999999, test_pair_type='valid2'):
 		if self.test_mode:
-			limit_pairs=1000
+			limit_pairs = 1000
 		all_pairs = filter_order_list(dictFromFileUnicode(HOME+'candidates/candidate_pairs.{}.{}.lv3.json.gz'.format(test_pair_type,self.candidates_type)), self.knn_candiadates)\
 					+ filter_order_list(dictFromFileUnicode(HOME+'candidates/candidate_pairs.{}.d2v.json.gz'.format(test_pair_type)), 12)
 		pairs = remove_duplicate(all_pairs)

@@ -1,3 +1,8 @@
+'''
+Evaluate xgb models
+
+'''
+
 from utilities import * 
 
 VALID_THR_XGB={
@@ -10,6 +15,5 @@ VALID_THR_XGB={
 			}
 
 if __name__ == '__main__':
-	# Evaluate xgb models
 	for mname in VALID_THR_XGB.keys():
 		evaluate_with_thr(None, mname, 'valid2', thresholds = VALID_THR_XGB[mname], write_to_file = False, reverse = True)

@@ -1,6 +1,7 @@
 ''' 
 	+ Build SF-ML vector space model
 	+ Generated 100 nearest neighbors for each device-log. 
+
 '''
 
 from tqdm import tqdm
@@ -14,15 +15,22 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from multiprocessing import Pool as Pool
 from utilities import *
 import random
+import argparse
 random.seed(123456)
 
-import argparse
+
 parser = argparse.ArgumentParser(description='parsing arguments')
 parser.add_argument('-nthread', action="store",  dest="NTHREAD", type=int)
 args = parser.parse_args()
 NTHREAD = args.NTHREAD
+knn = tf = users = timer = n_neighbors = None
+
 
 def sf_ml(fdoc, fgolden, tfidf):
+	''' SF-ML vector space model
+
+	'''
+
 	mpf = defaultdict(int)
 	df = defaultdict(int)
 
@@ -35,7 +43,7 @@ def sf_ml(fdoc, fgolden, tfidf):
 				uid, doc_str = line
 				doc_tks[uid] = set(doc_str.split())
 				for tk in doc_tks[uid]:
-					df[tk]+=1
+					df[tk] += 1
 
 	print 'Counting mpf'
 	with open(fgolden,'r') as f:
@@ -45,7 +53,7 @@ def sf_ml(fdoc, fgolden, tfidf):
 				u1,u2 = line
 				m_urls = doc_tks[u1]&doc_tks[u2]
 				for url in m_urls:
-					mpf[url]+=1
+					mpf[url] += 1
 
 	new_idf = list(tfidf.idf_)
 	n = float(len(tfidf.vocabulary_))
@@ -60,7 +68,7 @@ def sf_ml(fdoc, fgolden, tfidf):
 	tfidf._tfidf._idf_diag = sp.spdiags(np.array(new_idf), diags=0, m=n_features, n=n_features, format='csr')
 	return tfidf
 
-knn = tf = users = timer = n_neighbors = None
+
 def get_predict(line):
 	res = []
 	user_id, tokens = line.strip().split('\t')
@@ -71,6 +79,7 @@ def get_predict(line):
 				res.append((user_id, users[tmp[1][0][i]], tmp[0][0][i]))
 	res = sorted(res, key=lambda x: x[2])
 	return  [(r[0],r[1],r[2],i+1) for i,r in enumerate(res)]
+
 
 def init_for_generate_candidates(knn_k,doc_f):
 	global knn, tf, users, n_neighbors
@@ -88,8 +97,10 @@ def init_for_generate_candidates(knn_k,doc_f):
 	knn = KNeighborsClassifier(n_neighbors=1)
 	knn.fit(tf_test, range(1, tf_test.shape[0] + 1))
 
+
 def generate_candidates(n_neighbors,fmodel_type,fdoc_type, is_sectional=False, write_to_file = True, path_lv = 3):
-	''' build suppervised tf-idf like scheme in fmodel_type and derive the representation for fdoc_type
+	''' Build suppervised tf-idf like scheme in fmodel_type and derive the representation for fdoc_type
+
 	'''
 	model_train_f = 'tmp/facts_url_{}.lv{}{}.txt'.format(fmodel_type,path_lv,'.sectional' if is_sectional else'')
 	doc_f = 'tmp/facts_url_{}.lv{}{}.txt'.format(fdoc_type,path_lv,'.sectional' if is_sectional else'')
@@ -117,6 +128,7 @@ def generate_candidates(n_neighbors,fmodel_type,fdoc_type, is_sectional=False, w
 	if write_to_file:
 		dictToFile(data,'candidates/candidate_pairs.{}.{}.lv{}.json.gz'.format(fdoc_type,'sfml',path_lv))
 	return data
+
 
 if __name__ == '__main__':
 	for fdoc_type in ['valid','valid2']:
