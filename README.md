@@ -45,5 +45,3 @@ Please cite the following paper if you find the codes useful:
   doi       = {10.1145/3077136.3080682},
 }
 ```
-
-(by Minh C. Phan phan0050@e.ntu.edu.sg)
